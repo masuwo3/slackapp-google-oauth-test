@@ -5,6 +5,12 @@ provider:
   runtime: python3.7
   region: ap-northeast-1
   profile: cm-hirata.kei
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "sqs:SendMessage"
+        - "sqs:ReceiveMessage"
+      Resource: "*"
 
 functions:
   auth:
@@ -25,10 +31,26 @@ functions:
     environment:
       GOOGLE_CLIENT_ID: ${env:GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${env:GOOGLE_CLIENT_SECRET}
+      TASK_QUEUE_ENDPOINT: { "Ref": "TaskQueue" }
+  task:
+    handler: task.invoke
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt:
+              - TaskQueue
+              - Arn
+    environment:
+      TASK_QUEUE_ENDPOINT: { "Ref": "TaskQueue" }
 
 package:
   exclude:
     - .venv/**
+
+resources:
+  Resources:
+    TaskQueue:
+      Type: AWS::SQS::Queue
 
 plugins:
   - serverless-python-requirements

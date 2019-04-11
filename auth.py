@@ -13,22 +13,30 @@ SCOPE = 'email'
 
 
 def invoke(event, context):
+    print(json.dumps(event))
+
     headers = event['headers']
-    body_raw = event['body']
+    payload_raw = event['body']
     req_ctx = event['requestContext']
 
     # Slack Appから送られたリクエストかどうかを判別
-    if not verify_request(headers, body_raw, SLACK_SIGNING_SECRET):
-        resp = json.dumps({
-                    "response_type": "ephemeral",
-                    "text": "Request is Invalid."})
+    if not verify_request(headers, payload_raw, SLACK_SIGNING_SECRET):
+        resp = json.dumps({"response_type": "ephemeral",
+                           "text": "Request is Invalid."})
+
         return {'statusCode': 200, 'body': resp}
+
+    payload = parse_qs(payload_raw)
+
+    # 以降の処理にslash commandのパラメータをstateとして渡す
+    state = {'response_url': payload['response_url'],
+             'command': payload['command'],
+             'text': payload['text'] if 'text' in payload else ['']}
 
     # API GatewayのContextからOAuth認証用のリダイレクトURLを作成
     redirect_uri = __redirect_uri(req_ctx)
 
     # slackのresponse_urlをリダイレクト後も参照できるようにstateに渡す
-    state = {'response_url': parse_qs(body_raw)['response_url']}
     oauth_link = __oauth_link(redirect_uri, state)
 
     body = {'text': '<{}|Googleアカウントでログイン>'.format(oauth_link)}
@@ -37,11 +45,11 @@ def invoke(event, context):
             "body": json.dumps(body)}
 
 
-def verify_request(headers, body, signing_secret):
+def verify_request(headers, payload_raw, signing_secret):
     timestamp = headers['X-Slack-Request-Timestamp']
     signature = headers['X-Slack-Signature']
 
-    req = str.encode('v0:' + timestamp + ':' + body)
+    req = str.encode('v0:' + timestamp + ':' + payload_raw)
     req_hash = 'v0=' + hmac.new(str.encode(signing_secret),
                                 req,
                                 hashlib.sha256).hexdigest()

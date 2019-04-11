@@ -9,6 +9,8 @@ flake8 = "*"
 
 [packages]
 requests = "*"
+boto3 = "*"
+google-auth = "*"
 
 [requires]
 python_version = "3.7"

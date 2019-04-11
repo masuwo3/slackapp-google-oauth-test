@@ -24,3 +24,5 @@ node_modules/
 .envrc
 .venv/
 .vscode/
+
+data/
