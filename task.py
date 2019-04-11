@@ -10,8 +10,6 @@ TASK_QUEUE_ENDPOINT = os.environ['TASK_QUEUE_ENDPOINT']
 
 
 def invoke(event, context):
-    print(json.dumps(event))
-
     for record in event['Records']:
         task_params = json.loads(record['body'])
 

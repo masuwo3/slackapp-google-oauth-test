@@ -11,7 +11,6 @@ TASK_QUEUE_ENDPOINT = os.environ['TASK_QUEUE_ENDPOINT']
 
 
 def invoke(event, context):
-    print(json.dumps(event))
     query = event['queryStringParameters']
 
     state = json.loads(query['state'])

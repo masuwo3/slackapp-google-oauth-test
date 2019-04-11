@@ -13,8 +13,6 @@ SCOPE = 'email'
 
 
 def invoke(event, context):
-    print(json.dumps(event))
-
     headers = event['headers']
     payload_raw = event['body']
     req_ctx = event['requestContext']
