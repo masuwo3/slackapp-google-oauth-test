@@ -15,8 +15,6 @@ def invoke(event, context):
     command = SlashCommand(SLACK_SIGNING_SECRET)
     command.load_event(event)
 
-    req_ctx = event['requestContext']
-
     # Slack Appから送られたリクエストかどうかを判別
     if not command.verify_request():
         resp = json.dumps({"response_type": "ephemeral",
@@ -25,7 +23,7 @@ def invoke(event, context):
         return {'statusCode': 200, 'body': resp}
 
     # API GatewayのContextからOAuth認証用のリダイレクトURLを作成
-    redirect_uri = __redirect_uri(req_ctx)
+    redirect_uri = __redirect_uri(event['requestContext'])
 
     # slackのresponse_urlをリダイレクト後も参照できるようにstateに渡す
     oauth_link = __oauth_link(redirect_uri, command.dump_state())
