@@ -4,23 +4,24 @@ from code.slack import SlashCommand
 
 
 class TestSlashCommand(TestCase):
-    def test_load_event(self):
-        c = SlashCommand('SigingSecret')
+    def setUp(self):
+        self.c = SlashCommand('SigingSecret')
         event = {
             'headers': {
                 'X-Slack-Request-Timestamp': '12345678',
                 'X-Slack-Signature': 'slacksignature'},
             'body': 'command=/test&text=param1%20param2&response_url=https://hooks.slack.com/commands/1234/5678'}  # noqa: E501
-        c.load_event(event)
+        self.c.load_event(event)
 
-        self.assertEquals(c.signature, 'slacksignature')
-        self.assertEquals(c.timestamp, '12345678')
-        self.assertEquals(c.payload_raw,
+    def test_load_event(self):
+        self.assertEquals(self.c.signature, 'slacksignature')
+        self.assertEquals(self.c.timestamp, '12345678')
+        self.assertEquals(self.c.payload_raw,
                           'command=/test&text=param1%20param2&response_url=https://hooks.slack.com/commands/1234/5678')  # noqa: E501
-        self.assertEquals(c.response_url,
+        self.assertEquals(self.c.response_url,
                           'https://hooks.slack.com/commands/1234/5678')
-        self.assertEquals(c.command_name, 'test')
-        self.assertEquals(c.params, ['param1', 'param2'])
+        self.assertEquals(self.c.command_name, 'test')
+        self.assertEquals(self.c.params, ['param1', 'param2'])
 
     def test_verify(self):
         c = SlashCommand('abcd1234')
@@ -39,31 +40,22 @@ class TestSlashCommand(TestCase):
         self.assertFalse(c.verify_request())
 
     def test_dump_state(self):
-        c = SlashCommand('SigingSecret')
-        event = {
-            'headers': {
-                'X-Slack-Request-Timestamp': '12345678',
-                'X-Slack-Signature': 'slacksignature'},
-            'body': 'command=/test&text=param1%20param2&response_url=https://hooks.slack.com/commands/1234/5678'}  # noqa: E501
+        state = self.c.dump_state()
 
-        c.load_event(event)
-        state = c.dump_state()
-
-        self.assertEquals(state, {'response_url': 'https://hooks.slack.com/commands/1234/5678',
+        self.assertEquals(state, {'response_url': 'https://hooks.slack.com/commands/1234/5678',  # noqa: E501
                                   'command': 'test',
                                   'text': ['param1', 'param2']})
 
     def test_dump_state_noparams(self):
-        c = SlashCommand('SigingSecret')
         event = {
             'headers': {
                 'X-Slack-Request-Timestamp': '12345678',
                 'X-Slack-Signature': 'slacksignature'},
             'body': 'command=/test&response_url=https://hooks.slack.com/commands/1234/5678'}  # noqa: E501
 
-        c.load_event(event)
-        state = c.dump_state()
+        self.c.load_event(event)
+        state = self.c.dump_state()
 
-        self.assertEquals(state, {'response_url': 'https://hooks.slack.com/commands/1234/5678',
+        self.assertEquals(state, {'response_url': 'https://hooks.slack.com/commands/1234/5678',  # noqa: E501
                                   'command': 'test',
                                   'text': ['']})
