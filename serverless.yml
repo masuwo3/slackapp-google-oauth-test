@@ -4,7 +4,6 @@ provider:
   name: aws
   runtime: python3.7
   region: ap-northeast-1
-  profile: cm-hirata.kei
   iamRoleStatements:
     - Effect: "Allow"
       Action:
@@ -50,6 +49,15 @@ package:
 resources:
   Resources:
     TaskQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        RedrivePolicy:
+          deadLetterTargetArn: 
+            Fn::GetAtt:
+              - TaskDLQ
+              - Arn
+          maxReceiveCount: 1
+    TaskDLQ:
       Type: AWS::SQS::Queue
 
 plugins:
