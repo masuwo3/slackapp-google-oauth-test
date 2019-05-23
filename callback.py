@@ -50,7 +50,6 @@ def __get_access_token(code, redirect_uri):
         print(f"text: {e.response.text}")
         raise e
 
-    print(resp)
     return resp['access_token']
 
 
