@@ -3,6 +3,7 @@ service: slackapp-google-oauth-test
 provider:
   name: aws
   runtime: python3.7
+  stage: ${opt:stage, self:custom.defaultStage}
   region: ap-northeast-1
   iamRoleStatements:
     - Effect: "Allow"
@@ -21,6 +22,7 @@ functions:
     environment:
       GOOGLE_CLIENT_ID: ${env:GOOGLE_CLIENT_ID}
       SLACK_SIGNING_SECRET: ${env:SLACK_SIGNING_SECRET}
+      LOG_LEVEL: ${self:custom.logLevel.${self:provider.stage}}
   callback:
     handler: callback.invoke
     events:
@@ -31,6 +33,7 @@ functions:
       GOOGLE_CLIENT_ID: ${env:GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${env:GOOGLE_CLIENT_SECRET}
       TASK_QUEUE_ENDPOINT: { "Ref": "TaskQueue" }
+      LOG_LEVEL: ${self:custom.logLevel.${self:provider.stage}}
   task:
     handler: task.invoke
     events:
@@ -41,6 +44,7 @@ functions:
               - Arn
     environment:
       TASK_QUEUE_ENDPOINT: { "Ref": "TaskQueue" }
+      LOG_LEVEL: ${self:custom.logLevel.${self:provider.stage}}
 
 package:
   exclude:
@@ -62,3 +66,9 @@ resources:
 
 plugins:
   - serverless-python-requirements
+
+custom:
+  defaultStage: dev
+  logLevel:
+    dev: DEBUG
+    prod: INFO

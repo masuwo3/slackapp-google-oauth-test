@@ -1,22 +1,31 @@
 import os
 import json
+import logging
 from urllib.parse import urljoin
 
 from requests_oauthlib import OAuth2Session
 
 from code.slack import SlashCommandFactory
+from code.log_util import setup_loglevel
 
 GOOGLE_CLIENT_ID = os.environ['GOOGLE_CLIENT_ID']
 SLACK_SIGNING_SECRET = os.environ['SLACK_SIGNING_SECRET']
 
 SCOPE = ['email']
 
+setup_loglevel()
+logger = logging.getLogger(__name__)
+
 
 def invoke(event, context):
+    logger.debug(json.dumps(event))
+
     command = SlashCommandFactory(SLACK_SIGNING_SECRET).load_from_event(event)
 
     # Slack Appから送られたリクエストかどうかを判別
     if not command.verify_request():
+        logger.info('Request is Invalid.')
+
         resp = json.dumps({"response_type": "ephemeral",
                            "text": "Request is Invalid."})
 
@@ -27,6 +36,7 @@ def invoke(event, context):
 
     # slackのresponse_urlをリダイレクト後も参照できるようにstateに渡す
     oauth_link = __oauth_link(redirect_uri, command.dump_state())
+    logger.debug('authorization url: %s', oauth_link)
 
     body = {'text': '<{}|Googleアカウントでログイン>'.format(oauth_link)}
 

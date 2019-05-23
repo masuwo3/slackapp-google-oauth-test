@@ -1,15 +1,23 @@
 import os
 import json
+import logging
 
 import requests
 from requests import HTTPError
 from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import AuthorizedSession
 
+from code.log_util import setup_loglevel
+
 TASK_QUEUE_ENDPOINT = os.environ['TASK_QUEUE_ENDPOINT']
+
+setup_loglevel()
+logger = logging.getLogger(__name__)
 
 
 def invoke(event, context):
+    logger.debug(json.dumps(event))
+
     for record in event['Records']:
         task_params = json.loads(record['body'])
         response_url = task_params['response_url']
@@ -22,8 +30,8 @@ def invoke(event, context):
 
             return 'ok'
         except HTTPError as e:
-            print(f"status code: {e.response.status_code}")
-            print(f"text: {e.response.text}")
+            logger.error(f"status code: {e.response.status_code}")
+            logger.error(f"text: {e.response.text}")
             __post_response(response_url,
                             {'text': f'タスクに失敗しました : {e.response.text}'})
             raise e
@@ -45,6 +53,6 @@ def __post_response(response_url, data):
                           data=json.dumps(data))
         r.raise_for_status()
     except HTTPError as e:
-        print(f"status code: {e.response.status_code}")
-        print(f"text: {e.response.text}")
+        logger.error(f"status code: {e.response.status_code}")
+        logger.error(f"text: {e.response.text}")
         raise e

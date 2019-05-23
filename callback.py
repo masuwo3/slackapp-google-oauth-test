@@ -1,5 +1,6 @@
 import os
 import json
+import logging
 
 import boto3
 import requests
@@ -7,14 +8,19 @@ from requests import HTTPError
 from requests_oauthlib import OAuth2Session
 
 from code.slack import SlashCommandFactory
-
+from code.log_util import setup_loglevel
 
 GOOGLE_CLIENT_ID = os.environ['GOOGLE_CLIENT_ID']
 GOOGLE_CLIENT_SECRET = os.environ['GOOGLE_CLIENT_SECRET']
 TASK_QUEUE_ENDPOINT = os.environ['TASK_QUEUE_ENDPOINT']
 
+setup_loglevel()
+logger = logging.getLogger(__name__)
+
 
 def invoke(event, context):
+    logger.debug(json.dumps(event))
+
     query = event['queryStringParameters']
     state = json.loads(query['state'])
     c = SlashCommandFactory().load_from_state(state)
@@ -46,9 +52,12 @@ def __get_access_token(code, redirect_uri):
         resp = sess.fetch_token(token_url, code=code,
                                 client_secret=GOOGLE_CLIENT_SECRET)
     except HTTPError as e:
-        print(f"status code: {e.response.status_code}")
-        print(f"text: {e.response.text}")
+        logger.error(f"status code: {e.response.status_code}")
+        logger.error(f"text: {e.response.text}")
         raise e
+
+    logger.debug('Get below tokens.')
+    logger.debug(json.dumps(resp))
 
     return resp['access_token']
 
@@ -59,8 +68,8 @@ def __post_response(response_url, data):
                       headers={'Content-Type': 'application/json'},
                       data=json.dumps(data))
     except HTTPError as e:
-        print(f"status code: {e.response.status_code}")
-        print(f"text: {e.response.text}")
+        logger.error(f"status code: {e.response.status_code}")
+        logger.error(f"text: {e.response.text}")
         raise e
 
 
