@@ -4,8 +4,10 @@ import json
 import boto3
 import requests
 from requests import HTTPError
+from requests_oauthlib import OAuth2Session
 
 from code.slack import SlashCommandFactory
+
 
 GOOGLE_CLIENT_ID = os.environ['GOOGLE_CLIENT_ID']
 GOOGLE_CLIENT_SECRET = os.environ['GOOGLE_CLIENT_SECRET']
@@ -32,26 +34,24 @@ def invoke(event, context):
     __post_response(c.response_url,
                     {'text': 'タスクを開始します。'})
 
-    return {"statusCode": 200,
-            "body": 'ok'}
+    return {'statusCode': 200,
+            'body': 'ok'}
 
 
 def __get_access_token(code, redirect_uri):
-    data = {'code': code,
-            'client_id': GOOGLE_CLIENT_ID,
-            'client_secret': GOOGLE_CLIENT_SECRET,
-            'redirect_uri': redirect_uri,
-            'grant_type': 'authorization_code'}
+    token_url = 'https://www.googleapis.com/oauth2/v4/token'
+
     try:
-        r = requests.post('https://www.googleapis.com/oauth2/v4/token',
-                          data=data)
-        r.raise_for_status()
+        sess = OAuth2Session(GOOGLE_CLIENT_ID, redirect_uri=redirect_uri)
+        resp = sess.fetch_token(token_url, code=code,
+                                client_secret=GOOGLE_CLIENT_SECRET)
     except HTTPError as e:
         print(f"status code: {e.response.status_code}")
         print(f"text: {e.response.text}")
         raise e
 
-    return r.json()['access_token']
+    print(resp)
+    return resp['access_token']
 
 
 def __post_response(response_url, data):

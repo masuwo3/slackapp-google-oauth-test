@@ -43,13 +43,13 @@ class TestSlashCommand(TestCase):
         self.assertEquals(c.params, [''])
 
     def test_load_from_state(self):
-        state = {'response_url': ['https://hooks.slack.com/commands/abcd/efgh'],
-                 'command': ['test2'],
-                 'text': [['hoge', 'fuga']]}
+        state = {'response_url': 'https://hooks.slack.com/commands/abcd/efgh',  # noqa: E501
+                 'command': 'test2',
+                 'text': ['hoge', 'fuga']}
 
         c = SlashCommandFactory().load_from_state(state)
 
-        self.assertEquals(c.response_url, 'https://hooks.slack.com/commands/abcd/efgh')
+        self.assertEquals(c.response_url, 'https://hooks.slack.com/commands/abcd/efgh')  # noqa: E501
         self.assertEquals(c.name, 'test2')
         self.assertEquals(c.params, ['hoge', 'fuga'])
 
