@@ -5,6 +5,8 @@ import boto3
 import requests
 from requests import HTTPError
 
+from code.slack import SlashCommandFactory
+
 GOOGLE_CLIENT_ID = os.environ['GOOGLE_CLIENT_ID']
 GOOGLE_CLIENT_SECRET = os.environ['GOOGLE_CLIENT_SECRET']
 TASK_QUEUE_ENDPOINT = os.environ['TASK_QUEUE_ENDPOINT']
@@ -12,25 +14,22 @@ TASK_QUEUE_ENDPOINT = os.environ['TASK_QUEUE_ENDPOINT']
 
 def invoke(event, context):
     query = event['queryStringParameters']
-
     state = json.loads(query['state'])
-    command = state['command'][0]
-    command_params = state['text'][0].split()
-    response_url = state['response_url'][0]
+    c = SlashCommandFactory().load_from_state(state)
 
     code = query['code']
     redirect_uri = __redirect_uri(event['requestContext'])
     access_token = __get_access_token(code, redirect_uri)
 
-    task_msg = {'command': command,
-                'command_params': command_params,
+    task_msg = {'command': c.name,
+                'command_params': c.params,
                 'g_access_token': access_token,
-                'response_url': response_url}
+                'response_url': c.response_url}
 
     queue = boto3.resource('sqs').Queue(TASK_QUEUE_ENDPOINT)
     queue.send_message(MessageBody=json.dumps(task_msg))
 
-    __post_response(response_url,
+    __post_response(c.response_url,
                     {'text': 'タスクを開始します。'})
 
     return {"statusCode": 200,

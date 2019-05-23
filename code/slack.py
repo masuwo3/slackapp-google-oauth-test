@@ -18,15 +18,15 @@ class SlashCommandFactory:
         # 送られたコマンドに引数がない場合は、空文字のlistを加える
         params = payload['text'][0].split() if 'text' in payload else ['']
 
-        return SlashCommand(body=body_raw, timestamp=ts, 
+        return SlashCommand(body=body_raw, timestamp=ts,
                             signature=sig, response_url=resp_url,
                             name=name, params=params,
                             sigining_secret=self.sigining_secret)
 
     def load_from_state(self, state):
-        resp_url = state['response_url'][0]
-        name = state['command'][0]
-        params = state['text'][0]
+        resp_url = state['response_url']
+        name = state['command']
+        params = state['text']
 
         return SlashCommand(response_url=resp_url, name=name, params=params)
 
@@ -62,4 +62,3 @@ class SlashCommand:
         return {'response_url': self.response_url,
                 'command': self.name,
                 'text': self.params}
-

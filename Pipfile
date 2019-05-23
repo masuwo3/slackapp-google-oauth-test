@@ -11,6 +11,7 @@ flake8 = "*"
 requests = "*"
 boto3 = "*"
 google-auth = "*"
+requests-oauthlib = "*"
 
 [requires]
 python_version = "3.7"

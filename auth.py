@@ -1,19 +1,19 @@
 import os
 import json
-from urllib.parse import urlencode
 from urllib.parse import urljoin
 
-from code.slack import SlashCommand
+from requests_oauthlib import OAuth2Session
+
+from code.slack import SlashCommandFactory
 
 GOOGLE_CLIENT_ID = os.environ['GOOGLE_CLIENT_ID']
 SLACK_SIGNING_SECRET = os.environ['SLACK_SIGNING_SECRET']
 
-SCOPE = 'email'
+SCOPE = ['email']
 
 
 def invoke(event, context):
-    command = SlashCommand(SLACK_SIGNING_SECRET)
-    command.load_event(event)
+    command = SlashCommandFactory(SLACK_SIGNING_SECRET).load_from_event(event)
 
     # Slack Appから送られたリクエストかどうかを判別
     if not command.verify_request():
@@ -35,16 +35,14 @@ def invoke(event, context):
 
 
 def __oauth_link(redirect_uri, state=None):
-    url = 'https://accounts.google.com/o/oauth2/v2/auth?'
-    query = {'client_id': GOOGLE_CLIENT_ID,
-             'redirect_uri': redirect_uri,
-             'scope': SCOPE,
-             'response_type': 'code'}
+    auth_base_url = 'https://accounts.google.com/o/oauth2/v2/auth?'
+    _state = json.dumps(state) if state else None
 
-    if state:
-        query['state'] = json.dumps(state)
+    sess = OAuth2Session(GOOGLE_CLIENT_ID, scope=SCOPE,
+                         redirect_uri=redirect_uri)
+    auth_url, _ = sess.authorization_url(auth_base_url, state=_state)
 
-    return url + urlencode(query)
+    return auth_url
 
 
 def __redirect_uri(req_ctx):
