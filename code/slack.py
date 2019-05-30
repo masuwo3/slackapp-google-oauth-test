@@ -17,11 +17,13 @@ class SlashCommandFactory:
         name = payload['command'][0].lstrip('/')
         # 送られたコマンドに引数がない場合は、空文字のlistを加える
         params = payload['text'][0].split() if 'text' in payload else ['']
+        user_id = payload['user_id'][0]
 
         return SlashCommand(body=body_raw, timestamp=ts,
                             signature=sig, response_url=resp_url,
                             name=name, params=params,
-                            sigining_secret=self.sigining_secret)
+                            sigining_secret=self.sigining_secret,
+                            user_id=user_id)
 
     def load_from_state(self, state):
         resp_url = state['response_url']
@@ -34,7 +36,7 @@ class SlashCommandFactory:
 class SlashCommand:
     def __init__(self, body=None, timestamp=None, signature=None,
                  response_url=None, name=None, params=None,
-                 sigining_secret=None, **args):
+                 sigining_secret=None, user_id=None, **args):
         self.body = body
         self.timestamp = timestamp
         self.signature = signature
@@ -42,6 +44,7 @@ class SlashCommand:
         self.name = name
         self.params = params
         self.sigining_secret = sigining_secret
+        self.user_id = user_id
         self.extra = args
 
     def verify_request(self):
