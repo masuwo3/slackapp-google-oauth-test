@@ -25,6 +25,6 @@ class TestCredStore(TestCase):
         store = CredStore('dummy')
         store.table.get_item = MagicMock(return_value=resp)
 
-        self.assertEquals(store.load('hoge'), {'user_id': 'hoge',
-                                               'access_token': 'hogehoge',
-                                               'refresh_token': 'fugafuga'})
+        self.assertEqual(store.load('hoge'), {'user_id': 'hoge',
+                                              'access_token': 'hogehoge',
+                                              'refresh_token': 'fugafuga'})

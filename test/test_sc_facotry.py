@@ -16,13 +16,13 @@ class TestSCFactory(TestCase):
 
         c = SlashCommandFactory('SigingSecret').load_from_event(event)
 
-        self.assertEquals(c.signature, 'slacksignature')
-        self.assertEquals(c.timestamp, '12345678')
-        self.assertEquals(c.body, self.BODY_SAMPLE)  # noqa: E501
-        self.assertEquals(c.response_url, 'https://hooks.slack.com/commands/1234/5678')  # noqa: E501
-        self.assertEquals(c.name, 'test')
-        self.assertEquals(c.params, ['param1', 'param2'])
-        self.assertEquals(c.user_id, 'U2147483697')
+        self.assertEqual(c.signature, 'slacksignature')
+        self.assertEqual(c.timestamp, '12345678')
+        self.assertEqual(c.body, self.BODY_SAMPLE)  # noqa: E501
+        self.assertEqual(c.response_url, 'https://hooks.slack.com/commands/1234/5678')  # noqa: E501
+        self.assertEqual(c.name, 'test')
+        self.assertEqual(c.params, ['param1', 'param2'])
+        self.assertEqual(c.user_id, 'U2147483697')
 
     def test_load_from_event_with_noparams(self):
         event = {
@@ -33,7 +33,7 @@ class TestSCFactory(TestCase):
 
         c = SlashCommandFactory('SigingSecret').load_from_event(event)
 
-        self.assertEquals(c.params, [''])
+        self.assertEqual(c.params, [''])
 
     def test_load_from_state(self):
         state = {'response_url': 'https://hooks.slack.com/commands/abcd/efgh',  # noqa: E501
@@ -42,6 +42,6 @@ class TestSCFactory(TestCase):
 
         c = SlashCommandFactory().load_from_state(state)
 
-        self.assertEquals(c.response_url, 'https://hooks.slack.com/commands/abcd/efgh')  # noqa: E501
-        self.assertEquals(c.name, 'test2')
-        self.assertEquals(c.params, ['hoge', 'fuga'])
+        self.assertEqual(c.response_url, 'https://hooks.slack.com/commands/abcd/efgh')  # noqa: E501
+        self.assertEqual(c.name, 'test2')
+        self.assertEqual(c.params, ['hoge', 'fuga'])
