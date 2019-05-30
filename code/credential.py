@@ -1,7 +1,7 @@
 import boto3
 
 
-class CredsStore:
+class CredStore:
     def __init__(self, table_name, session=None):
         if session is None:
             session = boto3.Session()
@@ -11,4 +11,4 @@ class CredsStore:
         self.table.put_item(Item={'user_id': user_id, **tokens})
 
     def load(self, user_id):
-        return self.table.get_item(Key={'user_id': user_id})
+        return self.table.get_item(Key={'user_id': user_id})['Item']

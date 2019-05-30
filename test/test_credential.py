@@ -1,12 +1,12 @@
 from unittest import TestCase
 from unittest.mock import MagicMock
 
-from code.credential import CredsStore
+from code.credential import CredStore
 
 
-class TestCredsStore(TestCase):
+class TestCredStore(TestCase):
     def test_save(self):
-        store = CredsStore('dummy')
+        store = CredStore('dummy')
         store.table.put_item = MagicMock(return_value={})
 
         store.save('test_user', {'access_token': 'hogehoge',
@@ -18,11 +18,13 @@ class TestCredsStore(TestCase):
                   'refresh_token': 'fugafuga'})
 
     def test_load(self):
-        creds = {'user_id': 'hoge',
-                 'access_token': 'hogehoge',
-                 'refresh_token': 'fugafuga'}
+        resp = {'Item': {'user_id': 'hoge',
+                         'access_token': 'hogehoge',
+                         'refresh_token': 'fugafuga'}}
 
-        store = CredsStore('dummy')
-        store.table.get_item = MagicMock(return_value=creds)
+        store = CredStore('dummy')
+        store.table.get_item = MagicMock(return_value=resp)
 
-        self.assertEquals(store.load('hoge'), creds)
+        self.assertEquals(store.load('hoge'), {'user_id': 'hoge',
+                                               'access_token': 'hogehoge',
+                                               'refresh_token': 'fugafuga'})
