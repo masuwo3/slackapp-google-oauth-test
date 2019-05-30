@@ -33,6 +33,10 @@ class SlashCommandFactory:
         return SlashCommand(response_url=resp_url, name=name, params=params)
 
 
+class SlashCommandStore:
+    pass
+
+
 class SlashCommand:
     def __init__(self, body=None, timestamp=None, signature=None,
                  response_url=None, name=None, params=None,
@@ -61,7 +65,15 @@ class SlashCommand:
 
         return hmac.compare_digest(req_hash, self.signature)
 
-    def dump_state(self):
-        return {'response_url': self.response_url,
-                'command': self.name,
-                'text': self.params}
+    def dump(self):
+        d = {'body': self.body,
+             'timestamp': self.timestamp,
+             'signature': self.signature,
+             'response_url': self.response_url,
+             'name': self.name,
+             'params': self.params,
+             'sigining_secret': self.sigining_secret,
+             'user_id': self.user_id,
+             'extra': self.extra}
+
+        return filter(None, d)

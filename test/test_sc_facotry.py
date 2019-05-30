@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from code.slack import SlashCommandFactory
+from samplecode.slack import SlashCommandFactory
 
 
 class TestSCFactory(TestCase):

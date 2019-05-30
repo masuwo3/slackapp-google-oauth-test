@@ -1,7 +1,8 @@
+import unittest
 from unittest import TestCase
 from unittest.mock import MagicMock
 
-from code.credential import CredStore
+from samplecode.credential import CredStore
 
 
 class TestCredStore(TestCase):
@@ -28,3 +29,7 @@ class TestCredStore(TestCase):
         self.assertEqual(store.load('hoge'), {'user_id': 'hoge',
                                               'access_token': 'hogehoge',
                                               'refresh_token': 'fugafuga'})
+
+
+if __name__ == '__main__':
+    unittest.main()
