@@ -23,6 +23,7 @@ functions:
       GOOGLE_CLIENT_ID: ${env:GOOGLE_CLIENT_ID}
       SLACK_SIGNING_SECRET: ${env:SLACK_SIGNING_SECRET}
       LOG_LEVEL: ${self:custom.logLevel.${self:provider.stage}}
+      CRED_STORE: { "Ref": "CredStore" }
   callback:
     handler: callback.invoke
     events:
@@ -63,6 +64,21 @@ resources:
           maxReceiveCount: 1
     TaskDLQ:
       Type: AWS::SQS::Queue
+    CredStore:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: user_id
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: user_id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+
 
 plugins:
   - serverless-python-requirements
