@@ -76,4 +76,4 @@ class SlashCommand:
              'user_id': self.user_id,
              'extra': self.extra}
 
-        return filter(None, d)
+        return dict(filter(lambda x: bool(x[1]), d.items()))

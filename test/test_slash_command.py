@@ -24,7 +24,7 @@ class TestSlashCommand(TestCase):
 
         self.assertFalse(self.c.verify_request())
 
-    def x_test_dump_state(self):
+    def test_dump_state(self):
         self.assertEqual(self.c.dump(),
                          {'body': self.BODY_SAMPLE,
                           'response_url': 'https://hooks.slack.com/commands/1234/5678',  # noqa:E501
