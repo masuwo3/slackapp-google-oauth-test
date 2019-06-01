@@ -77,3 +77,7 @@ class SlashCommand:
              'extra': self.extra}
 
         return dict(filter(lambda x: bool(x[1]), d.items()))
+
+    def gen_id(self):
+        seed = '/'.join([self.timestamp, self.user_id])
+        return hashlib.md5(str.encode(seed)).hexdigest()

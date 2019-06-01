@@ -14,6 +14,7 @@ class TestSlashCommand(TestCase):
             sigining_secret='abcd1234',
             signature=self.SIGNATURE_SAMPLE,
             name='test',
+            user_id='U2147483697',
             params=['param1', 'param2'])
 
     def test_verify(self):
@@ -24,6 +25,12 @@ class TestSlashCommand(TestCase):
 
         self.assertFalse(self.c.verify_request())
 
+    def test_id(self):
+        # md5('1234567890/U2147483697'.encode()).hexdigest() =>
+        _id = '8b8f635617a60e22ac9e491241f03631'
+
+        self.assertEqual(self.c.gen_id(), _id)
+
     def test_dump_state(self):
         self.assertEqual(self.c.dump(),
                          {'body': self.BODY_SAMPLE,
@@ -31,5 +38,6 @@ class TestSlashCommand(TestCase):
                           'timestamp': '1234567890',
                           'sigining_secret': 'abcd1234',
                           'signature': self.SIGNATURE_SAMPLE,
+                          'user_id': 'U2147483697',
                           'name': 'test',
                           'params': ['param1', 'param2']})
