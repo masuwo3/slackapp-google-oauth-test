@@ -2,6 +2,8 @@ from urllib.parse import parse_qs
 import hmac
 import hashlib
 
+import boto3
+
 
 class SlashCommandFactory:
     def __init__(self, sigining_secret=None):
@@ -34,7 +36,20 @@ class SlashCommandFactory:
 
 
 class SlashCommandStore:
-    pass
+    def __init__(self, table_name, session=None):
+        if session is None:
+            session = boto3.Session()
+        self.table = session.resource('dynamodb').Table(table_name)
+
+    def save(self, command):
+        id_ = command.gen_id()
+        self.table.put_item(Item={'id': id_, 'command': command.dump()})
+        return id_
+
+    def load(self, id_):
+        resp = self.table.get_item(Key={'id': id_})
+        command_params = resp['Item']['command']
+        return SlashCommand(**command_params)
 
 
 class SlashCommand:
