@@ -12,13 +12,3 @@ class CredStore:
 
     def load(self, user_id):
         return self.table.get_item(Key={'user_id': user_id})['Item']
-
-
-if __name__ == '__main__':
-    import os
-    p = os.environ['PYTHONPATH']
-    print(p)
-
-    import sys
-    p = sys.path
-    print(p)
