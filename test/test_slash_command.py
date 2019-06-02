@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from samplecode.slack import SlashCommand
+from samplecode.slack.slashcommand import SlashCommand
 
 
 class TestSlashCommand(TestCase):
@@ -16,14 +16,6 @@ class TestSlashCommand(TestCase):
             name='test',
             user_id='U2147483697',
             params=['param1', 'param2'])
-
-    def test_verify(self):
-        self.assertTrue(self.c.verify_request())
-
-    def test_verify_fail(self):
-        self.c.sigining_secret = 'abcd123456'  # 不正な値
-
-        self.assertFalse(self.c.verify_request())
 
     def test_id(self):
         # md5('1234567890/U2147483697'.encode()).hexdigest() =>

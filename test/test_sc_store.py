@@ -2,8 +2,8 @@ import unittest
 from unittest import TestCase
 from unittest.mock import MagicMock
 
-from samplecode.slack import SlashCommand
-from samplecode.slack import SlashCommandStore
+from samplecode.slack.slashcommand import SlashCommand
+from samplecode.slack.slashcommand import SlashCommandStore
 
 
 class TestSCStore(TestCase):
